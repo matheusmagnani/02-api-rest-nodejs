@@ -39,7 +39,7 @@ describe('Transactions routes', () => {
         type: 'credit'
       })
 
-      const cookies = createTransactionResponse.get('Set-Cookie')
+      const cookies = createTransactionResponse.get('set-cookie') as string;
 
       const listTransactionsResponse = await request(app.server)
         .get('/transactions')
@@ -60,10 +60,10 @@ describe('Transactions routes', () => {
       .send({
         title: 'New transaction',
         amount: 5000,
-       // type: 'credit'
+       type: 'credit'
        })    
 
-      const cookies = createTransactionResponse.get('Set-Cookie')
+      const cookies = createTransactionResponse.get('set-cookie') as string;
 
       const listTransactionsResponse = await request(app.server)
         .get('/transactions')
@@ -77,7 +77,7 @@ describe('Transactions routes', () => {
       .set('Cookie', cookies)
       .expect(200)
 
-      expect(getTransactionResponse.body.transaction).toEqual(
+      expect(getTransactionResponse.body.transactions).toEqual(
         expect.objectContaining({
           title: 'New transaction',
           amount: 5000,
