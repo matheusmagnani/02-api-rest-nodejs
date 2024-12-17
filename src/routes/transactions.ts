@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify"
 import { z } from 'zod'
 import { knex } from "../database"
-import { randomUUID } from "crypto"
+import { randomUUID } from "node:crypto"
 import { checkSessionIdExists } from "../middlewares/check-session-id-exists"
 
 export async function transactionsRoutes(app: FastifyInstance){
@@ -34,14 +34,14 @@ app.get('/:id',
 
     const { sessionId} = request.cookies
 
-    const transactions = await knex('transactions')
+    const transaction = await knex('transactions')
       .where({
         session_id: sessionId,
         id,
       })
       .first()
 
-    return { transactions }
+    return { transaction }
   }
 )
 
@@ -76,10 +76,11 @@ app.post('/', async (request, reply) => {
   if(!sessionId) {
     sessionId = randomUUID()
 
-    reply.setCookie('sessionId', sessionId, {
-      path: '/',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-    })
+    reply
+      .setCookie('sessionId', sessionId, {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+      })
   }
 
   await knex('transactions').insert({
