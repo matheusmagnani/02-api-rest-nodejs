@@ -11,40 +11,39 @@ app.get(
   {
     preHandler: [checkSessionIdExists],
   },
- async (request, reply) => {
+ async (request) => {
   const { sessionId} = request.cookies
 
   const transactions = await knex('transactions')
   .where('session_id', sessionId)
   .select()
 
-  return {
-    transactions,
-  }
+  return { transactions }
 })
 
 app.get('/:id',
   {
     preHandler: [checkSessionIdExists],
   },
-   async (request) => {
-  const getTransactionParamsSchema = z.object({
-    id: z.string().uuid(),
-  })
-
-  const { id } = getTransactionParamsSchema.parse(request.params)
-
-  const { sessionId} = request.cookies
-
-  const transactions = await knex('transactions')
-    .where({
-      session_id: sessionId,
-      id,
+  async (request) => {
+    const getTransactionParamsSchema = z.object({
+      id: z.string().uuid(),
     })
-    .first()
 
-  return { transactions }
-})
+    const { id } = getTransactionParamsSchema.parse(request.params)
+
+    const { sessionId} = request.cookies
+
+    const transactions = await knex('transactions')
+      .where({
+        session_id: sessionId,
+        id,
+      })
+      .first()
+
+    return { transactions }
+  }
+)
 
 app.get('/summary',
   {
@@ -77,7 +76,7 @@ app.post('/', async (request, reply) => {
   if(!sessionId) {
     sessionId = randomUUID()
 
-    reply.cookie('sessionId', sessionId, {
+    reply.setCookie('sessionId', sessionId, {
       path: '/',
       maxAge: 60 * 60 * 24 * 7, // 7 days
     })
